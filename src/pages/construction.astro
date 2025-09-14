@@ -1,0 +1,89 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { db, Article, eq, desc } from 'astro:db';
+
+// Get all construction articles
+const constructionArticles = await db.select().from(Article)
+  .where(eq(Article.category, 'construction'))
+  .where(eq(Article.published, true))
+  .orderBy(desc(Article.createdAt));
+---
+
+<Layout title="Construction - WFA & Partners">
+  <Header />
+  
+  <main class="pt-16">
+    <!-- Hero Section -->
+    <section class="relative h-96 overflow-hidden">
+      <img 
+        src="https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?auto=compress&cs=tinysrgb&w=1600" 
+        alt="Construction"
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black/60"></div>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center text-white max-w-4xl px-4">
+          <h1 class="text-5xl md:text-6xl font-bold mb-6">
+            Construction
+          </h1>
+          <p class="text-xl md:text-2xl font-light opacity-90">
+            Réalisation de projets de construction avec excellence et précision
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Articles Section -->
+    <section class="py-20 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold text-white mb-4">
+            Nos Projets de Construction
+          </h2>
+          <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+            Explorez nos réalisations en construction, témoins de notre savoir-faire 
+            et de notre engagement qualité.
+          </p>
+        </div>
+        
+        {constructionArticles.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {constructionArticles.map((article) => (
+              <ArticleCard
+                title={article.title}
+                description={article.description}
+                image={article.image}
+                category={article.category}
+                href={`/construction/${article.id}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-16">
+            <div class="w-24 h-24 mx-auto mb-6 bg-gray-800 rounded-full flex items-center justify-center">
+              <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-semibold text-white mb-4">Aucun projet pour le moment</h3>
+            <p class="text-gray-400 mb-8">
+              Nos projets de construction seront bientôt disponibles. 
+              Revenez prochainement pour découvrir nos réalisations.
+            </p>
+            <a 
+              href="/contact" 
+              class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+            >
+              Nous contacter pour un projet
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  </main>
+  
+  <Footer />
+</Layout>

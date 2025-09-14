@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { db, Article, eq } from 'astro:db';
+
+// Get all architecture articles
+const architectureArticles = await db.select().from(Article)
+  .where(eq(Article.category, 'architecture'))
+  .where(eq(Article.published, true))
+  .orderBy(desc(Article.createdAt));
+
+import { desc } from 'astro:db';
+---
+
+<Layout title="Architecture - WFA & Partners">
+  <Header />
+  
+  <main class="pt-16">
+    <!-- Hero Section -->
+    <section class="relative h-96 overflow-hidden">
+      <img 
+        src="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1600" 
+        alt="Architecture"
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black/60"></div>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center text-white max-w-4xl px-4">
+          <h1 class="text-5xl md:text-6xl font-bold mb-6">
+            Architecture
+          </h1>
+          <p class="text-xl md:text-2xl font-light opacity-90">
+            Conception de bâtiments modernes et fonctionnels qui marquent leur époque
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Articles Section -->
+    <section class="py-20 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold text-white mb-4">
+            Nos Projets d'Architecture
+          </h2>
+          <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+            Découvrez notre portfolio de réalisations architecturales, 
+            alliant innovation, esthétique et fonctionnalité.
+          </p>
+        </div>
+        
+        {architectureArticles.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {architectureArticles.map((article) => (
+              <ArticleCard
+                title={article.title}
+                description={article.description}
+                image={article.image}
+                category={article.category}
+                href={`/architecture/${article.id}`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-16">
+            <div class="w-24 h-24 mx-auto mb-6 bg-gray-800 rounded-full flex items-center justify-center">
+              <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-semibold text-white mb-4">Aucun projet pour le moment</h3>
+            <p class="text-gray-400 mb-8">
+              Nos projets d'architecture seront bientôt disponibles. 
+              Revenez prochainement pour découvrir nos réalisations.
+            </p>
+            <a 
+              href="/contact" 
+              class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+            >
+              Nous contacter pour un projet
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  </main>
+  
+  <Footer />
+</Layout>

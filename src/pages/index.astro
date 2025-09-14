@@ -1,0 +1,132 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Carousel from '../components/Carousel.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { db, Article } from 'astro:db';
+
+// Get latest articles
+const latestArchitecture = await db.select().from(Article)
+  .where(eq(Article.category, 'architecture'))
+  .where(eq(Article.published, true))
+  .orderBy(desc(Article.createdAt))
+  .limit(1);
+
+const latestConstruction = await db.select().from(Article)
+  .where(eq(Article.category, 'construction'))
+  .where(eq(Article.published, true))
+  .orderBy(desc(Article.createdAt))
+  .limit(1);
+
+import { eq, desc } from 'astro:db';
+---
+
+<Layout title="WFA & Partners - Cabinet d'Architecture et Construction">
+  <Header />
+  
+  <main class="pt-16">
+    <!-- Hero Carousel -->
+    <Carousel />
+    
+    <!-- Latest Articles Section -->
+    <section class="py-20 bg-gray-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold text-white mb-4">
+            Nos Dernières Réalisations
+          </h2>
+          <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+            Découvrez nos projets les plus récents en architecture et construction
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {latestArchitecture.length > 0 && (
+            <div>
+              <h3 class="text-2xl font-semibold text-white mb-6 flex items-center">
+                <span class="w-1 h-8 bg-blue-500 mr-4"></span>
+                Architecture
+              </h3>
+              <ArticleCard
+                title={latestArchitecture[0].title}
+                description={latestArchitecture[0].description}
+                image={latestArchitecture[0].image}
+                category={latestArchitecture[0].category}
+                href={`/architecture/${latestArchitecture[0].id}`}
+              />
+            </div>
+          )}
+          
+          {latestConstruction.length > 0 && (
+            <div>
+              <h3 class="text-2xl font-semibold text-white mb-6 flex items-center">
+                <span class="w-1 h-8 bg-green-500 mr-4"></span>
+                Construction
+              </h3>
+              <ArticleCard
+                title={latestConstruction[0].title}
+                description={latestConstruction[0].description}
+                image={latestConstruction[0].image}
+                category={latestConstruction[0].category}
+                href={`/construction/${latestConstruction[0].id}`}
+              />
+            </div>
+          )}
+        </div>
+        
+        <div class="text-center mt-12">
+          <a 
+            href="/architecture" 
+            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors mr-4"
+          >
+            Voir tous nos projets d'architecture
+          </a>
+          <a 
+            href="/construction" 
+            class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+          >
+            Voir tous nos projets de construction
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- About Section -->
+    <section class="py-20 bg-black">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-4xl font-bold text-white mb-6">
+              WFA & Partners
+            </h2>
+            <p class="text-lg text-gray-400 mb-6">
+              Depuis plus de 15 ans, WFA & Partners accompagne ses clients dans la réalisation 
+              de leurs projets architecturaux et de construction. Notre expertise couvre tous 
+              les aspects de la conception à la réalisation.
+            </p>
+            <p class="text-lg text-gray-400 mb-8">
+              Nous privilégions une approche moderne et durable, en intégrant les dernières 
+              innovations technologiques et les matériaux écologiques.
+            </p>
+            <a 
+              href="/vision" 
+              class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+            >
+              Découvrir notre vision
+            </a>
+          </div>
+          <div class="relative">
+            <img 
+              src="https://images.pexels.com/photos/3862132/pexels-photo-3862132.jpeg?auto=compress&cs=tinysrgb&w=800" 
+              alt="Équipe WFA & Partners"
+              class="rounded-lg shadow-2xl"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <Footer />
+</Layout>

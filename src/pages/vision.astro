@@ -1,0 +1,123 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Notre Vision - WFA & Partners">
+  <Header />
+  
+  <main class="pt-16">
+    <!-- Hero Section -->
+    <section class="relative h-96 overflow-hidden">
+      <img 
+        src="https://images.pexels.com/photos/3862132/pexels-photo-3862132.jpeg?auto=compress&cs=tinysrgb&w=1600" 
+        alt="Notre Vision"
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black/60"></div>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center text-white max-w-4xl px-4">
+          <h1 class="text-5xl md:text-6xl font-bold mb-6">
+            Notre Vision
+          </h1>
+          <p class="text-xl md:text-2xl font-light opacity-90">
+            Créer des espaces qui inspirent et transforment la vie quotidienne
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="py-20 bg-gray-900">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="prose prose-lg prose-invert max-w-none">
+          <h2 class="text-3xl font-bold text-white mb-8">Une Architecture au Service de l'Humain</h2>
+          
+          <p class="text-gray-300 mb-6 text-lg leading-relaxed">
+            Chez WFA & Partners, nous croyons que l'architecture doit être bien plus qu'une simple 
+            construction. Elle doit raconter une histoire, créer des émotions et améliorer la qualité 
+            de vie de ceux qui l'habitent ou la fréquentent.
+          </p>
+          
+          <p class="text-gray-300 mb-8 text-lg leading-relaxed">
+            Notre vision s'articule autour de trois piliers fondamentaux qui guident chacun de nos projets :
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div class="bg-gray-800 p-6 rounded-lg">
+              <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-3">Innovation</h3>
+              <p class="text-gray-400">
+                Intégration des dernières technologies et matériaux pour des solutions avant-gardistes.
+              </p>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-lg">
+              <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-3">Durabilité</h3>
+              <p class="text-gray-400">
+                Conception respectueuse de l'environnement avec des matériaux écologiques et durables.
+              </p>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-lg">
+              <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-3">Collaboration</h3>
+              <p class="text-gray-400">
+                Travail en étroite collaboration avec nos clients pour réaliser leur vision unique.
+              </p>
+            </div>
+          </div>
+
+          <h3 class="text-2xl font-bold text-white mb-6">Notre Approche</h3>
+          
+          <p class="text-gray-300 mb-6 text-lg leading-relaxed">
+            Chaque projet commence par une écoute attentive de vos besoins et de vos aspirations. 
+            Nous analysons le contexte, l'environnement et les contraintes pour proposer des solutions 
+            sur mesure qui dépassent vos attentes.
+          </p>
+          
+          <p class="text-gray-300 mb-6 text-lg leading-relaxed">
+            Notre équipe pluridisciplinaire combine expertise technique et créativité artistique 
+            pour donner vie à des projets uniques. De la conception initiale à la livraison finale, 
+            nous vous accompagnons à chaque étape avec professionnalisme et passion.
+          </p>
+
+          <h3 class="text-2xl font-bold text-white mb-6">L'Architecture de Demain</h3>
+          
+          <p class="text-gray-300 mb-6 text-lg leading-relaxed">
+            Nous anticipons les défis de demain en intégrant dès aujourd'hui les solutions 
+            d'efficacité énergétique, les matériaux biosourcés et les technologies intelligentes. 
+            Notre objectif est de créer des bâtiments qui s'adaptent aux évolutions futures 
+            tout en respectant l'environnement.
+          </p>
+          
+          <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-8 mt-12">
+            <h4 class="text-xl font-semibold text-white mb-4">Notre Engagement</h4>
+            <p class="text-gray-300 text-lg">
+              "Nous nous engageons à créer des espaces qui non seulement répondent aux besoins 
+              d'aujourd'hui, mais anticipent ceux de demain, dans le respect de l'environnement 
+              et du bien-être humain."
+            </p>
+            <p class="text-blue-400 font-medium mt-4">— L'équipe WFA & Partners</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <Footer />
+</Layout>

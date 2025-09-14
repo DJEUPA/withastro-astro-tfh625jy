@@ -1,0 +1,85 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "WFA & Partners - Cabinet d'architecture et de construction" } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-gray-900 text-white font-sans">
+    <slot />
+    <script>
+      // Carousel functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const carousel = document.querySelector('[data-carousel]');
+        if (carousel) {
+          const slides = carousel.querySelectorAll('[data-slide]');
+          const indicators = carousel.querySelectorAll('[data-indicator]');
+          let currentSlide = 0;
+
+          function showSlide(index) {
+            slides.forEach((slide, i) => {
+              slide.classList.toggle('opacity-100', i === index);
+              slide.classList.toggle('opacity-0', i !== index);
+            });
+            
+            indicators.forEach((indicator, i) => {
+              indicator.classList.toggle('bg-white', i === index);
+              indicator.classList.toggle('bg-white/50', i !== index);
+            });
+          }
+
+          function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+          }
+
+          // Auto-advance slides
+          setInterval(nextSlide, 10000);
+
+          // Manual navigation
+          indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+              currentSlide = index;
+              showSlide(currentSlide);
+            });
+          });
+        }
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('[data-mobile-menu-button]');
+        const mobileMenu = document.querySelector('[data-mobile-menu]');
+        
+        if (mobileMenuButton && mobileMenu) {
+          mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+  }
+</style>
