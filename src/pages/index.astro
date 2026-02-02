@@ -4,22 +4,9 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Carousel from '../components/Carousel.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import { db, Article } from 'astro:db';
 
-// Get latest articles
-const latestArchitecture = await db.select().from(Article)
-  .where(eq(Article.category, 'architecture'))
-  .where(eq(Article.published, true))
-  .orderBy(desc(Article.createdAt))
-  .limit(1);
-
-const latestConstruction = await db.select().from(Article)
-  .where(eq(Article.category, 'construction'))
-  .where(eq(Article.published, true))
-  .orderBy(desc(Article.createdAt))
-  .limit(1);
-
-import { eq, desc } from 'astro:db';
+const latestArchitecture: any[] = [];
+const latestConstruction: any[] = [];
 ---
 
 <Layout title="WFA & Partners - Cabinet d'Architecture et Construction">

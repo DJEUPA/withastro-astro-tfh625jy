@@ -10,13 +10,26 @@ const navItems = [
 ];
 ---
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuButton = document.querySelector('[data-mobile-menu-button]');
+    const mobileMenu = document.querySelector('[data-mobile-menu]');
+
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+  });
+</script>
+
 <header class="bg-black/90 backdrop-blur-sm fixed w-full top-0 z-50 border-b border-gray-800">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
       <!-- Logo -->
       <div class="flex-shrink-0">
-        <a href="/" class="text-2xl font-bold text-white">
-          WFA & Partners
+        <a href="/" class="flex items-center">
+          <img src="/image.png" alt="WFA Partners" class="h-12 w-auto" />
         </a>
       </div>
 

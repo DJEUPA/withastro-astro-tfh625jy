@@ -3,15 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import { db, Article, eq } from 'astro:db';
 
-// Get all architecture articles
-const architectureArticles = await db.select().from(Article)
-  .where(eq(Article.category, 'architecture'))
-  .where(eq(Article.published, true))
-  .orderBy(desc(Article.createdAt));
-
-import { desc } from 'astro:db';
+const architectureArticles: any[] = [];
 ---
 
 <Layout title="Architecture - WFA & Partners">

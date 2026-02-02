@@ -3,13 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import { db, Article, eq, desc } from 'astro:db';
 
-// Get all construction articles
-const constructionArticles = await db.select().from(Article)
-  .where(eq(Article.category, 'construction'))
-  .where(eq(Article.published, true))
-  .orderBy(desc(Article.createdAt));
+const constructionArticles: any[] = [];
 ---
 
 <Layout title="Construction - WFA & Partners">
