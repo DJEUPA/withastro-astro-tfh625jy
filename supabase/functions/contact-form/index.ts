@@ -69,11 +69,11 @@ Cet email a été envoyé depuis le formulaire de contact du site WFA & Partners
       body: JSON.stringify({
         personalizations: [
           {
-            to: [{ email: "contact@wfapartners.com" }],
+            to: [{ email: "contact@wfa-partners.com" }],
             subject: `Nouvelle demande: ${formData.subject}`,
           },
         ],
-        from: { email: "noreply@wfapartners.com" },
+        from: { email: "noreply@wfa-partners.com" },
         content: [
           {
             type: "text/plain",
