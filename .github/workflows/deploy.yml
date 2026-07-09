@@ -32,9 +32,10 @@ jobs:
         with:
           SSH_PRIVATE_KEY: ${{ secrets.OVH_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.OVH_HOST }}
+          REMOTE_PORT: ${{ secrets.OVH_PORT }}
           REMOTE_USER: ${{ secrets.OVH_USER }}
           SOURCE: "dist/"
-          TARGET: "/var/www/wfa-partners/dist/"
+          TARGET: "${{ secrets.OVH_DEPLOY_PATH }}/dist/"
           ARGS: "-rlgoDzvc -i --delete"
           EXCLUDE: "node_modules, .env, .env.production, data"
 
@@ -42,10 +43,10 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.OVH_HOST }}
+          port: ${{ secrets.OVH_PORT }}
           username: ${{ secrets.OVH_USER }}
           key: ${{ secrets.OVH_SSH_KEY }}
           script: |
-            cd /var/www/wfa-partners
+            cd ${{ secrets.OVH_DEPLOY_PATH }}
             pm2 reload ecosystem.config.cjs --update-env 2>/dev/null || pm2 start ecosystem.config.cjs
             pm2 save
-            sudo /usr/bin/pm2 save
