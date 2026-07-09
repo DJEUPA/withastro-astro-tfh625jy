@@ -1,17 +1,42 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { verifyAdminAuth } from '../../lib/auth';
+import { createClient } from '@supabase/supabase-js';
 
-// Check if user is authenticated (simplified for demo)
-const isAuthenticated = Astro.cookies.get('admin_token')?.value;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!isAuthenticated) {
+const user = await verifyAdminAuth(Astro.cookies);
+if (!user) {
   return Astro.redirect('/admin/login');
 }
+
+const accessToken = Astro.cookies.get('sb_access_token')?.value;
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  global: {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  },
+});
+
+const { count: architectureCount = 0 } = await supabase
+  .from('articles')
+  .select('*', { count: 'exact', head: true })
+  .eq('category', 'architecture');
+
+const { count: constructionCount = 0 } = await supabase
+  .from('articles')
+  .select('*', { count: 'exact', head: true })
+  .eq('category', 'construction');
+
+const { count: totalCount = 0 } = await supabase
+  .from('articles')
+  .select('*', { count: 'exact', head: true });
 ---
 
 <Layout title="Administration - WFA & Partners">
   <div class="min-h-screen bg-gray-900">
-    <!-- Admin Header -->
     <header class="bg-black border-b border-gray-800">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
@@ -19,6 +44,7 @@ if (!isAuthenticated) {
             <h1 class="text-xl font-bold text-white">Administration WFA & Partners</h1>
           </div>
           <div class="flex items-center space-x-4">
+            <span class="text-gray-400 text-sm hidden sm:block">{user.email}</span>
             <a href="/" class="text-gray-300 hover:text-white">Voir le site</a>
             <a href="/admin/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">
               Déconnexion
@@ -29,8 +55,7 @@ if (!isAuthenticated) {
     </header>
 
     <div class="flex">
-      <!-- Sidebar -->
-      <nav class="w-64 bg-gray-800 min-h-screen">
+      <nav class="w-64 bg-gray-800 min-h-screen hidden md:block">
         <div class="p-4">
           <ul class="space-y-2">
             <li>
@@ -62,12 +87,10 @@ if (!isAuthenticated) {
         </div>
       </nav>
 
-      <!-- Main Content -->
       <main class="flex-1 p-8">
         <div class="max-w-7xl mx-auto">
           <h2 class="text-3xl font-bold text-white mb-8">Tableau de bord</h2>
-          
-          <!-- Stats Cards -->
+
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-gray-800 p-6 rounded-lg">
               <div class="flex items-center">
@@ -78,11 +101,11 @@ if (!isAuthenticated) {
                 </div>
                 <div class="ml-4">
                   <p class="text-sm font-medium text-gray-400">Articles Architecture</p>
-                  <p class="text-2xl font-bold text-white" id="architecture-count">0</p>
+                  <p class="text-2xl font-bold text-white">{architectureCount}</p>
                 </div>
               </div>
             </div>
-            
+
             <div class="bg-gray-800 p-6 rounded-lg">
               <div class="flex items-center">
                 <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
@@ -92,32 +115,31 @@ if (!isAuthenticated) {
                 </div>
                 <div class="ml-4">
                   <p class="text-sm font-medium text-gray-400">Articles Construction</p>
-                  <p class="text-2xl font-bold text-white" id="construction-count">0</p>
+                  <p class="text-2xl font-bold text-white">{constructionCount}</p>
                 </div>
               </div>
             </div>
-            
+
             <div class="bg-gray-800 p-6 rounded-lg">
               <div class="flex items-center">
-                <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                <div class="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center">
                   <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
                 </div>
                 <div class="ml-4">
                   <p class="text-sm font-medium text-gray-400">Total Articles</p>
-                  <p class="text-2xl font-bold text-white" id="total-count">0</p>
+                  <p class="text-2xl font-bold text-white">{totalCount}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Quick Actions -->
           <div class="bg-gray-800 rounded-lg p-6">
             <h3 class="text-xl font-semibold text-white mb-4">Actions rapides</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <a 
-                href="/admin/articles/new" 
+              <a
+                href="/admin/articles/new"
                 class="flex items-center p-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors"
               >
                 <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,9 +147,9 @@ if (!isAuthenticated) {
                 </svg>
                 Créer un nouvel article
               </a>
-              
-              <a 
-                href="/admin/articles" 
+
+              <a
+                href="/admin/articles"
                 class="flex items-center p-4 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-colors"
               >
                 <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,16 +163,4 @@ if (!isAuthenticated) {
       </main>
     </div>
   </div>
-
-  <script>
-    // Load stats
-    fetch('/api/admin/stats')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('architecture-count').textContent = data.architecture || 0;
-        document.getElementById('construction-count').textContent = data.construction || 0;
-        document.getElementById('total-count').textContent = data.total || 0;
-      })
-      .catch(error => console.error('Error loading stats:', error));
-  </script>
 </Layout>

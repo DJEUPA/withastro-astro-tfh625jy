@@ -1,32 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 
-// Handle form submission
-if (Astro.request.method === 'POST') {
-  try {
-    const formData = await Astro.request.formData();
-    const username = formData.get('username') as string;
-    const password = formData.get('password') as string;
-
-    // Simple authentication (in production, use proper authentication)
-    if (username === 'admin' && password === 'admin123') {
-      // Set authentication cookie
-      Astro.cookies.set('admin_token', 'authenticated', {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24 // 24 hours
-      });
-      
-      return Astro.redirect('/admin');
-    } else {
-      // Invalid credentials
-      var error = 'Identifiants incorrects';
-    }
-  } catch (e) {
-    var error = 'Erreur lors de la connexion';
-  }
-}
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 ---
 
 <Layout title="Connexion Administration - WFA & Partners">
@@ -40,29 +16,26 @@ if (Astro.request.method === 'POST') {
           Connectez-vous pour accéder au panneau d'administration
         </p>
       </div>
-      
-      <form class="mt-8 space-y-6" method="POST">
-        {error && (
-          <div class="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
-        
+
+      <form id="loginForm" class="mt-8 space-y-6" method="POST">
+        <div id="formError" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg">
+        </div>
+
         <div class="space-y-4">
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
-              Nom d'utilisateur
+            <label for="email" class="block text-sm font-medium text-gray-300 mb-2">
+              Email
             </label>
             <input
-              id="username"
-              name="username"
-              type="text"
+              id="email"
+              name="email"
+              type="email"
               required
               class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="admin"
+              placeholder="admin@wfapartners.com"
             />
           </div>
-          
+
           <div>
             <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
               Mot de passe
@@ -81,18 +54,55 @@ if (Astro.request.method === 'POST') {
         <div>
           <button
             type="submit"
+            id="submitBtn"
             class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             Se connecter
           </button>
         </div>
-        
-        <div class="text-center">
-          <p class="text-sm text-gray-400">
-            Identifiants par défaut: admin / admin123
-          </p>
-        </div>
       </form>
     </div>
   </div>
+
+  <script is:inline define:vars={{ supabaseUrl, anonKey }}>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      const formError = document.getElementById('formError');
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Connexion...';
+      formError.classList.add('hidden');
+
+      try {
+        const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': anonKey,
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.cookie = `sb_access_token=${data.access_token}; path=/; max-age=3600; samesite=strict`;
+          document.cookie = `sb_refresh_token=${data.refresh_token}; path=/; max-age=604800; samesite=strict`;
+          window.location.href = '/admin';
+        } else {
+          const err = await response.json();
+          formError.classList.remove('hidden');
+          formError.textContent = err.error_description || err.msg || 'Identifiants incorrects';
+        }
+      } catch (error) {
+        formError.classList.remove('hidden');
+        formError.textContent = 'Erreur de connexion. Vérifiez votre connexion.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Se connecter';
+      }
+    });
+  </script>
 </Layout>

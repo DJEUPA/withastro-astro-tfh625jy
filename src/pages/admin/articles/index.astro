@@ -1,0 +1,150 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { verifyAdminAuth } from '../../../lib/auth';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const user = await verifyAdminAuth(Astro.cookies);
+if (!user) {
+  return Astro.redirect('/admin/login');
+}
+
+const accessToken = Astro.cookies.get('sb_access_token')?.value;
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  global: {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  },
+});
+
+const { data: articles = [] } = await supabase
+  .from('articles')
+  .select('*')
+  .order('created_at', { ascending: false });
+---
+
+<Layout title="Gestion des articles - WFA & Partners">
+  <div class="min-h-screen bg-gray-900">
+    <header class="bg-black border-b border-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center">
+            <a href="/admin" class="text-gray-400 hover:text-white mr-4 text-sm">← Dashboard</a>
+            <h1 class="text-xl font-bold text-white">Articles</h1>
+          </div>
+          <div class="flex items-center space-x-4">
+            <a href="/admin/articles/new" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+              + Nouvel article
+            </a>
+            <a href="/admin/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">
+              Déconnexion
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {articles.length === 0 ? (
+        <div class="text-center py-12">
+          <p class="text-gray-400 text-lg mb-4">Aucun article pour le moment</p>
+          <a href="/admin/articles/new" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+            Créer le premier article
+          </a>
+        </div>
+      ) : (
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-700">
+                <th class="text-left px-4 py-3 text-gray-400 font-medium text-sm">Image</th>
+                <th class="text-left px-4 py-3 text-gray-400 font-medium text-sm">Titre</th>
+                <th class="text-left px-4 py-3 text-gray-400 font-medium text-sm">Catégorie</th>
+                <th class="text-left px-4 py-3 text-gray-400 font-medium text-sm">Statut</th>
+                <th class="text-left px-4 py-3 text-gray-400 font-medium text-sm">Date</th>
+                <th class="text-left px-4 py-3 text-gray-400 font-medium text-sm">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {articles.map((article) => (
+                <tr class="border-b border-gray-800 hover:bg-gray-800/50">
+                  <td class="px-4 py-3">
+                    <img src={article.image_url} alt={article.title} class="w-16 h-12 object-cover rounded" />
+                  </td>
+                  <td class="px-4 py-3 text-white text-sm max-w-xs truncate">{article.title}</td>
+                  <td class="px-4 py-3">
+                    <span class={`px-2 py-1 rounded-full text-xs font-medium ${
+                      article.category === 'architecture'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-green-600 text-white'
+                    }`}>
+                      {article.category}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class={`px-2 py-1 rounded-full text-xs font-medium ${
+                      article.published
+                        ? 'bg-green-900 text-green-200 border border-green-700'
+                        : 'bg-gray-700 text-gray-300'
+                    }`}>
+                      {article.published ? 'Publié' : 'Brouillon'}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-gray-400 text-sm">
+                    {new Date(article.created_at).toLocaleDateString('fr-FR')}
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex space-x-2">
+                      <a
+                        href={`/admin/articles/${article.id}/edit`}
+                        class="text-blue-400 hover:text-blue-300 text-sm"
+                      >
+                        Modifier
+                      </a>
+                      <button
+                        type="button"
+                        data-delete-id={article.id}
+                        class="text-red-400 hover:text-red-300 text-sm"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </main>
+  </div>
+
+  <script is:inline define:vars={{ supabaseUrl, anonKey: supabaseAnonKey }}>
+    document.querySelectorAll('[data-delete-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) return;
+        const id = btn.dataset.deleteId;
+        const token = document.cookie
+          .split('; ')
+          .find(c => c.startsWith('sb_access_token='))
+          ?.split('=')[1];
+        const res = await fetch(`${supabaseUrl}/rest/v1/articles?id=eq.${id}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': anonKey,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert('Erreur lors de la suppression');
+        }
+      });
+    });
+  </script>
+</Layout>

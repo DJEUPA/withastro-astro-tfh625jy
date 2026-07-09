@@ -1,0 +1,5 @@
+---
+Astro.cookies.delete('sb_access_token', { path: '/' });
+Astro.cookies.delete('sb_refresh_token', { path: '/' });
+return Astro.redirect('/admin/login');
+---

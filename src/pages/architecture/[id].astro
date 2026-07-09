@@ -1,0 +1,79 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { supabase } from '../../lib/supabase';
+
+const { id } = Astro.params;
+
+const { data: article } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('id', id)
+  .eq('category', 'architecture')
+  .eq('published', true)
+  .maybeSingle();
+
+if (!article) {
+  return Astro.redirect('/architecture');
+}
+
+const formattedDate = new Date(article.created_at).toLocaleDateString('fr-FR', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+---
+
+<Layout title={`${article.title} - WFA & Partners`}>
+  <Header />
+
+  <main class="pt-16">
+    <article>
+      <section class="relative h-[60vh] overflow-hidden">
+        <img
+          src={article.image_url}
+          alt={article.title}
+          class="w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-black/60"></div>
+        <div class="absolute inset-0 flex items-end">
+          <div class="max-w-4xl mx-auto px-4 pb-12 w-full">
+            <span class="inline-block bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4 capitalize">
+              {article.category}
+            </span>
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+              {article.title}
+            </h1>
+            <p class="text-lg text-gray-300">{article.description}</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-20 bg-gray-900">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p class="text-gray-400 text-sm mb-8">Publié le {formattedDate}</p>
+          <div class="prose prose-lg prose-invert max-w-none">
+            <p class="text-gray-300 text-lg leading-relaxed whitespace-pre-wrap">
+              {article.content}
+            </p>
+          </div>
+
+          <div class="mt-12 pt-8 border-t border-gray-800">
+            <a
+              href="/architecture"
+              class="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium transition-colors"
+            >
+              <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              Retour aux projets d'architecture
+            </a>
+          </div>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <Footer />
+</Layout>
