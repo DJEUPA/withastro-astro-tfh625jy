@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'wfa-partners',
       script: './dist/server/entry.mjs',
-      cwd: '/var/www/wfa-partners',
+      cwd: '/home/deploiment/wfa-partners',
       env: {
         NODE_ENV: 'production',
         HOST: '127.0.0.1',
@@ -12,8 +12,8 @@ module.exports = {
       instances: 1,
       exec_mode: 'fork',
       max_memory_restart: '512M',
-      error_file: '/var/www/wfa-partners/logs/error.log',
-      out_file: '/var/www/wfa-partners/logs/output.log',
+      error_file: '/home/deploiment/wfa-partners/logs/error.log',
+      out_file: '/home/deploiment/wfa-partners/logs/output.log',
     },
   ],
 };
