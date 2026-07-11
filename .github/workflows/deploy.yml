@@ -27,7 +27,7 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Sync files to OVH
+      - name: Sync dist to OVH
         uses: easingthemes/ssh-deploy@v6.0.3
         with:
           SSH_PRIVATE_KEY: ${{ secrets.OVH_SSH_KEY }}
@@ -39,6 +39,16 @@ jobs:
           ARGS: "-rlgoDzvc -i --delete"
           EXCLUDE: "node_modules, .env, .env.production, data"
 
+      - name: Copy ecosystem.config.cjs to OVH
+        uses: easingthemes/ssh-deploy@v6.0.3
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.OVH_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.OVH_HOST }}
+          REMOTE_PORT: ${{ secrets.OVH_PORT }}
+          REMOTE_USER: ${{ secrets.OVH_USER }}
+          SOURCE: "ecosystem.config.cjs"
+          TARGET: "${{ secrets.OVH_DEPLOY_PATH }}"
+
       - name: Restart PM2
         uses: appleboy/ssh-action@v1
         with:
@@ -48,5 +58,6 @@ jobs:
           key: ${{ secrets.OVH_SSH_KEY }}
           script: |
             cd ${{ secrets.OVH_DEPLOY_PATH }}
+            mkdir -p logs
             pm2 reload ecosystem.config.cjs --update-env 2>/dev/null || pm2 start ecosystem.config.cjs
             pm2 save
