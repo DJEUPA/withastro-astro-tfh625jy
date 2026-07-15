@@ -59,5 +59,7 @@ jobs:
           script: |
             cd ${{ secrets.OVH_DEPLOY_PATH }}
             mkdir -p logs
-            pm2 reload ecosystem.config.cjs --update-env 2>/dev/null || pm2 start ecosystem.config.cjs
+            pm2 stop wfa-partners 2>/dev/null || true
+            pm2 delete wfa-partners 2>/dev/null || true
+            pm2 start ecosystem.config.cjs
             pm2 save
