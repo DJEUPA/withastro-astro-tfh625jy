@@ -2,7 +2,7 @@ name: Deploy WFA Partners
 
 on:
   push:
-    branches: [main]
+    branches: [master] # Modifié pour cibler uniquement la branche master
 
 jobs:
   deploy:
@@ -12,44 +12,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-      - name: Sync dist to OVH
+      - name: Sync source code to VPS
         uses: easingthemes/ssh-deploy@v6.0.3
         with:
           SSH_PRIVATE_KEY: ${{ secrets.OVH_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.OVH_HOST }}
           REMOTE_PORT: ${{ secrets.OVH_PORT }}
           REMOTE_USER: ${{ secrets.OVH_USER }}
-          SOURCE: "dist/"
-          TARGET: "${{ secrets.OVH_DEPLOY_PATH }}/dist/"
+          SOURCE: "./"  # On envoie tout le dossier source (sauf node_modules, .git, etc.)
+          TARGET: "${{ secrets.OVH_DEPLOY_PATH }}/"
           ARGS: "-rlgoDzvc -i --delete"
-          EXCLUDE: "node_modules, .env, .env.production, data"
+          EXCLUDE: "/node_modules/, /dist/, /.git/, /.github/"
 
-      - name: Copy ecosystem.config.cjs to OVH
-        uses: easingthemes/ssh-deploy@v6.0.3
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.OVH_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.OVH_HOST }}
-          REMOTE_PORT: ${{ secrets.OVH_PORT }}
-          REMOTE_USER: ${{ secrets.OVH_USER }}
-          SOURCE: "ecosystem.config.cjs"
-          TARGET: "${{ secrets.OVH_DEPLOY_PATH }}"
-
-      - name: Restart PM2
+      - name: Install, Build and Restart on VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.OVH_HOST }}
@@ -57,7 +32,22 @@ jobs:
           username: ${{ secrets.OVH_USER }}
           key: ${{ secrets.OVH_SSH_KEY }}
           script: |
+            # 1. Aller dans le dossier du projet
             cd ${{ secrets.OVH_DEPLOY_PATH }}
+            
+            # 2. Charger l'environnement Node (nécessaire selon la config de votre VPS, ex: NVM)
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
+            # 3. Installer les dépendances directement sur le VPS
+            npm ci --production=false
+            
+            # 4. Lancer le Build sur le VPS avec les variables d'environnement
+            export VITE_SUPABASE_URL="${{ secrets.VITE_SUPABASE_URL }}"
+            export VITE_SUPABASE_ANON_KEY="${{ secrets.VITE_SUPABASE_ANON_KEY }}"
+            npm run build
+            
+            # 5. Gérer le process PM2
             mkdir -p logs
             pm2 stop wfa-partners 2>/dev/null || true
             pm2 delete wfa-partners 2>/dev/null || true
