@@ -13,7 +13,7 @@ const primaryImage = images[0] || '';
 
 <a
   href={`/article/${article.id}`}
-  class="group block rounded-2xl overflow-hidden bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10"
+  class="group block rounded-2xl overflow-hidden bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all duration-300"
 >
   <div class="relative aspect-[4/3] overflow-hidden bg-gray-700">
     {primaryImage ? (
@@ -30,7 +30,7 @@ const primaryImage = images[0] || '';
       </div>
     )}
     {images.length > 1 && (
-      <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
+      <div class="absolute top-3 right-3 bg-black/70 text-white text-xs font-medium px-2.5 py-1 rounded-full">
         {images.length} photos
       </div>
     )}
@@ -41,11 +41,11 @@ const primaryImage = images[0] || '';
     </div>
   </div>
   <div class="p-5">
-    <h3 class="text-lg font-semibold text-white mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
+    <h3 class="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
       {article.title}
     </h3>
     {article.description && (
-      <p class="text-gray-400 text-sm line-clamp-2">{article.description}</p>
+      <p class="text-gray-400 text-sm">{article.description}</p>
     )}
   </div>
 </a>

@@ -31,7 +31,7 @@ const images = getArticleImages(articleData);
         <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
-        Retour aux {articleData.category === 'architecture' ? 'projets architecture' : 'projets construction'}
+        Retour
       </a>
 
       <div class="mb-6">
@@ -59,7 +59,7 @@ const images = getArticleImages(articleData);
           ) : (
             <div class={`grid gap-3 ${images.length === 2 ? 'grid-cols-2' : images.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
               {images.map((img, index) => (
-                <div class={`rounded-xl overflow-hidden bg-gray-800 ${images.length === 4 && index < 2 ? 'aspect-video' : images.length === 4 ? 'aspect-video' : 'aspect-[4/3]'}`}>
+                <div class="rounded-xl overflow-hidden bg-gray-800 aspect-video">
                   <img
                     src={img}
                     alt={`${articleData.title} - photo ${index + 1}`}
@@ -73,9 +73,7 @@ const images = getArticleImages(articleData);
       )}
 
       {articleData.content && (
-        <div class="prose prose-invert max-w-none">
-          <p class="text-gray-300 text-lg leading-relaxed whitespace-pre-wrap">{articleData.content}</p>
-        </div>
+        <p class="text-gray-300 text-lg leading-relaxed whitespace-pre-wrap">{articleData.content}</p>
       )}
     </div>
   </article>

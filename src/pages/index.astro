@@ -3,7 +3,18 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Carousel from '../components/Carousel.astro';
-import ArticleGrid from '../components/ArticleGrid.tsx';
+import ArticleCard from '../components/ArticleCard.astro';
+import { supabase } from '../lib/supabase';
+import type { Article } from '../lib/types';
+
+const { data: articles } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('published', true)
+  .order('created_at', { ascending: false })
+  .limit(6);
+
+const recentArticles = (articles || []) as Article[];
 ---
 
 <Layout title="WFA & Partners - Architecture & Construction">
@@ -20,8 +31,16 @@ import ArticleGrid from '../components/ArticleGrid.tsx';
         </p>
       </div>
 
-      <h2 class="text-2xl font-bold text-white mb-8">Projets récents</h2>
-      <ArticleGrid client:load limit={6} />
+      {recentArticles.length > 0 && (
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-8">Projets récents</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recentArticles.map((article) => (
+              <ArticleCard article={article} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   </section>
 
