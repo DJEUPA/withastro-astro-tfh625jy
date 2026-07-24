@@ -8,7 +8,7 @@ const { title, description = "WFA & Partners - Cabinet d'architecture et de cons
 ---
 
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
@@ -26,63 +26,7 @@ const { title, description = "WFA & Partners - Cabinet d'architecture et de cons
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-gray-900 text-white font-sans">
+  <body class="bg-gray-900 text-white" style="font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 0;">
     <slot />
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const carousel = document.querySelector('[data-carousel]');
-        if (carousel) {
-          const slides = carousel.querySelectorAll('[data-slide]');
-          const indicators = carousel.querySelectorAll('[data-indicator]');
-          let currentSlide = 0;
-
-          function showSlide(index: number) {
-            slides.forEach((slide: Element, i: number) => {
-              slide.classList.toggle('opacity-100', i === index);
-              slide.classList.toggle('opacity-0', i !== index);
-            });
-
-            indicators.forEach((indicator: Element, i: number) => {
-              indicator.classList.toggle('bg-white', i === index);
-              indicator.classList.toggle('bg-white/50', i !== index);
-            });
-          }
-
-          function nextSlide() {
-            currentSlide = (currentSlide + 1) % slides.length;
-            showSlide(currentSlide);
-          }
-
-          setInterval(nextSlide, 6000);
-
-          indicators.forEach((indicator: Element, index: number) => {
-            indicator.addEventListener('click', () => {
-              currentSlide = index;
-              showSlide(currentSlide);
-            });
-          });
-        }
-
-        const mobileMenuButton = document.querySelector('[data-mobile-menu-button]');
-        const mobileMenu = document.querySelector('[data-mobile-menu]');
-
-        if (mobileMenuButton && mobileMenu) {
-          mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-          });
-        }
-      });
-    </script>
   </body>
 </html>
-
-<style is:global>
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-  }
-</style>

@@ -3,39 +3,20 @@ import slider1 from '../assets/slider1.jpeg';
 import slider2 from '../assets/slider2.jpeg';
 
 const slides = [
-  {
-    image: slider1.src,
-    title: 'Architecture Moderne',
-    description: "Conception de bâtiments contemporains et durables"
-  },
-  {
-    image: slider2.src,
-    title: 'Construction Excellence',
-    description: "Réalisation de projets avec les plus hauts standards"
-  }
+  { image: slider1.src, title: 'Architecture Moderne', description: "Conception de bâtiments contemporains et durables" },
+  { image: slider2.src, title: 'Construction Excellence', description: "Réalisation de projets avec les plus hauts standards" }
 ];
 ---
 
 <div class="relative h-screen overflow-hidden" data-carousel>
   {slides.map((slide, index) => (
-    <div
-      class={`absolute inset-0 transition-opacity duration-1000 ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
-      data-slide
-    >
-      <img
-        src={slide.image}
-        alt={slide.title}
-        class="w-full h-full object-contain object-center bg-gray-800"
-      />
-      <div class="absolute inset-0 bg-black/50"></div>
+    <div class={`absolute inset-0 transition-opacity duration-1000 ${index === 0 ? 'opacity-100' : 'opacity-0'}`} data-slide>
+      <img src={slide.image} alt={slide.title} class="w-full h-full object-contain object-center bg-gray-800" />
+      <div class="absolute inset-0" style="background: rgba(0,0,0,0.5);"></div>
       <div class="absolute inset-0 flex items-center justify-center">
         <div class="text-center text-white max-w-4xl px-4">
-          <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-            {slide.title}
-          </h1>
-          <p class="text-xl md:text-2xl font-light opacity-90">
-            {slide.description}
-          </p>
+          <h1 class="text-5xl md:text-7xl font-bold mb-6" style="animation: fade-in 1s ease-out;">{slide.title}</h1>
+          <p class="text-xl md:text-2xl font-light opacity-90">{slide.description}</p>
         </div>
       </div>
     </div>
@@ -43,29 +24,49 @@ const slides = [
 
   <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
     {slides.map((_, index) => (
-      <button
-        class={`w-3 h-3 rounded-full transition-colors duration-300 ${
-          index === 0 ? 'bg-white' : 'bg-white/50'
-        }`}
-        data-indicator
-      ></button>
+      <button class={`w-3 h-3 rounded-full transition-colors duration-300 ${index === 0 ? 'bg-white' : 'bg-white/50'}`} data-indicator></button>
     ))}
   </div>
 </div>
 
 <style>
   @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 1s ease-out;
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.querySelector('[data-carousel]');
+    if (!carousel) return;
+    const slides = carousel.querySelectorAll('[data-slide]');
+    const indicators = carousel.querySelectorAll('[data-indicator]');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('opacity-100', i === index);
+        slide.classList.toggle('opacity-0', i !== index);
+      });
+      indicators.forEach((indicator, i) => {
+        indicator.classList.toggle('bg-white', i === index);
+        indicator.classList.toggle('bg-white/50', i !== index);
+      });
+    }
+
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
+    }
+
+    setInterval(nextSlide, 6000);
+
+    indicators.forEach((indicator, index) => {
+      indicator.addEventListener('click', () => {
+        currentSlide = index;
+        showSlide(currentSlide);
+      });
+    });
+  });
+</script>

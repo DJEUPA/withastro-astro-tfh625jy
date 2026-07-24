@@ -3,18 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Carousel from '../components/Carousel.astro';
-import ArticleCard from '../components/ArticleCard.astro';
-import { supabase } from '../lib/supabase';
-import type { Article } from '../lib/types';
-
-const { data: articles } = await supabase
-  .from('articles')
-  .select('*')
-  .eq('published', true)
-  .order('created_at', { ascending: false })
-  .limit(6);
-
-const recentArticles = (articles || []) as Article[];
+import ArticleGrid from '../components/ArticleGrid.tsx';
 ---
 
 <Layout title="WFA & Partners - Architecture & Construction">
@@ -31,45 +20,8 @@ const recentArticles = (articles || []) as Article[];
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-        <a href="/architecture" class="group relative rounded-2xl overflow-hidden aspect-video">
-          <img
-            src="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1200"
-            alt="Architecture"
-            class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-          />
-          <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors"></div>
-          <div class="absolute bottom-0 left-0 p-8">
-            <h3 class="text-3xl font-bold text-white mb-2">Architecture</h3>
-            <p class="text-gray-200">Conception et design</p>
-          </div>
-        </a>
-        <a href="/construction" class="group relative rounded-2xl overflow-hidden aspect-video">
-          <img
-            src="https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?auto=compress&cs=tinysrgb&w=1200"
-            alt="Construction"
-            class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-          />
-          <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors"></div>
-          <div class="absolute bottom-0 left-0 p-8">
-            <h3 class="text-3xl font-bold text-white mb-2">Construction</h3>
-            <p class="text-gray-200">Réalisation de projets</p>
-          </div>
-        </a>
-      </div>
-
-      {recentArticles.length > 0 && (
-        <div>
-          <div class="flex justify-between items-center mb-8">
-            <h2 class="text-2xl font-bold text-white">Projets récents</h2>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recentArticles.map((article) => (
-              <ArticleCard article={article} />
-            ))}
-          </div>
-        </div>
-      )}
+      <h2 class="text-2xl font-bold text-white mb-8">Projets récents</h2>
+      <ArticleGrid client:load limit={6} />
     </div>
   </section>
 

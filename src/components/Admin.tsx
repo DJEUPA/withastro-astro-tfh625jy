@@ -32,18 +32,14 @@ function EditModal({ article, onClose, onSave }: EditModalProps) {
     }
 
     const fileName = `${Date.now()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from('article-images')
-      .upload(fileName, file);
+    const { error: uploadError } = await supabase.storage.from('article-images').upload(fileName, file);
 
     if (uploadError) {
       setError('Erreur lors du téléversement: ' + uploadError.message);
       return;
     }
 
-    const { data: urlData } = supabase.storage
-      .from('article-images')
-      .getPublicUrl(fileName);
+    const { data: urlData } = supabase.storage.from('article-images').getPublicUrl(fileName);
 
     const newImages = [...images];
     if (index < newImages.length) {
@@ -87,7 +83,7 @@ function EditModal({ article, onClose, onSave }: EditModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 overflow-y-auto" style={{backdropFilter: 'blur(4px)'}}>
       <div className="bg-gray-800 rounded-2xl border border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">Modifier l'article</h2>
@@ -99,50 +95,33 @@ function EditModal({ article, onClose, onSave }: EditModalProps) {
         </div>
 
         {error && (
-          <div className="mb-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg p-3 text-sm">
-            {error}
-          </div>
+          <div className="mb-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg p-3 text-sm">{error}</div>
         )}
 
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Titre</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-            />
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={2}
-              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-            />
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
+              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Contenu</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={5}
-              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-            />
+            <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={5}
+              className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Catégorie</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as 'architecture' | 'construction')}
-                className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              >
+              <select value={category} onChange={(e) => setCategory(e.target.value as 'architecture' | 'construction')}
+                className="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none">
                 <option value="architecture">Architecture</option>
                 <option value="construction">Construction</option>
               </select>
@@ -150,31 +129,23 @@ function EditModal({ article, onClose, onSave }: EditModalProps) {
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Statut</label>
               <label className="flex items-center gap-3 px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={published}
-                  onChange={(e) => setPublished(e.target.checked)}
-                  className="w-5 h-5 rounded accent-blue-500"
-                />
+                <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)}
+                  className="w-5 h-5 rounded accent-blue-500" />
                 <span className="text-white">Publié</span>
               </label>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Images (1 à {MAX_IMAGES})
-            </label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Images (1 à {MAX_IMAGES})</label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {Array.from({ length: MAX_IMAGES }).map((_, index) => (
                 <div key={index} className="relative">
                   {images[index] ? (
                     <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-700 group">
                       <img src={images[index]} alt={`Image ${index + 1}`} className="w-full h-full object-cover" />
-                      <button
-                        onClick={() => removeImage(index)}
-                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                      >
+                      <button onClick={() => removeImage(index)}
+                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <span className="text-red-400 text-sm font-medium">Supprimer</span>
                       </button>
                     </div>
@@ -184,12 +155,8 @@ function EditModal({ article, onClose, onSave }: EditModalProps) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
                       <span className="text-xs text-gray-500">Ajouter</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => e.target.files && handleFileUpload(e.target.files, index)}
-                      />
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={(e) => e.target.files && handleFileUpload(e.target.files, index)} />
                     </label>
                   )}
                 </div>
@@ -199,17 +166,12 @@ function EditModal({ article, onClose, onSave }: EditModalProps) {
         </div>
 
         <div className="flex gap-3 mt-6">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-lg transition-colors"
-          >
+          <button onClick={handleSave} disabled={saving}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-lg transition-colors">
             {saving ? 'Enregistrement...' : 'Enregistrer'}
           </button>
-          <button
-            onClick={onClose}
-            className="px-6 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2.5 rounded-lg transition-colors"
-          >
+          <button onClick={onClose}
+            className="px-6 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2.5 rounded-lg transition-colors">
             Annuler
           </button>
         </div>
@@ -229,9 +191,7 @@ export default function Admin() {
   const fetchArticles = useCallback(async () => {
     setLoading(true);
     let query = supabase.from('articles').select('*').order('created_at', { ascending: false });
-    if (filter !== 'all') {
-      query = query.eq('category', filter);
-    }
+    if (filter !== 'all') query = query.eq('category', filter);
     const { data, error: fetchError } = await query;
     if (fetchError) {
       setError(fetchError.message);
@@ -258,38 +218,25 @@ export default function Admin() {
     <div className="pt-24 pb-24 min-h-screen bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-white mb-2">Administration</h1>
-        <p className="text-gray-400 mb-8">Gérez vos articles et projets</p>
+        <p className="text-gray-400 mb-8">Gérez et modifiez vos articles</p>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Rechercher un article..."
-            value={search}
+          <input type="text" placeholder="Rechercher un article..." value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-          />
+            className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none" />
           <div className="flex gap-2">
             {(['all', 'architecture', 'construction'] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
+              <button key={f} onClick={() => setFilter(f)}
                 className={`px-4 py-2.5 rounded-lg font-medium transition-colors ${
-                  filter === f
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
-                }`}
-              >
+                  filter === f ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+                }`}>
                 {f === 'all' ? 'Tous' : f === 'architecture' ? 'Architecture' : 'Construction'}
               </button>
             ))}
           </div>
         </div>
 
-        {error && (
-          <div className="mb-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg p-4">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg p-4">{error}</div>}
 
         {loading ? (
           <div className="text-center py-20">
@@ -307,9 +254,7 @@ export default function Admin() {
               return (
                 <div key={article.id} className="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700">
                   <div className="relative aspect-video bg-gray-700">
-                    {imgs[0] && (
-                      <img src={imgs[0]} alt={article.title} className="w-full h-full object-cover" />
-                    )}
+                    {imgs[0] && <img src={imgs[0]} alt={article.title} className="w-full h-full object-cover" />}
                     <div className="absolute top-3 left-3 flex gap-2">
                       <span className="bg-blue-600 text-white text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full">
                         {article.category}
@@ -322,21 +267,15 @@ export default function Admin() {
                     </div>
                     {!article.published && (
                       <div className="absolute top-3 right-3">
-                        <span className="bg-yellow-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-                          Brouillon
-                        </span>
+                        <span className="bg-yellow-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">Brouillon</span>
                       </div>
                     )}
                   </div>
                   <div className="p-5">
-                    <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">{article.title}</h3>
-                    {article.description && (
-                      <p className="text-gray-400 text-sm line-clamp-2 mb-4">{article.description}</p>
-                    )}
-                    <button
-                      onClick={() => setEditingArticle(article)}
-                      className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors"
-                    >
+                    <h3 className="text-lg font-semibold text-white mb-2">{article.title}</h3>
+                    {article.description && <p className="text-gray-400 text-sm mb-4">{article.description}</p>}
+                    <button onClick={() => setEditingArticle(article)}
+                      className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
@@ -351,11 +290,7 @@ export default function Admin() {
       </div>
 
       {editingArticle && (
-        <EditModal
-          article={editingArticle}
-          onClose={() => setEditingArticle(null)}
-          onSave={handleSave}
-        />
+        <EditModal article={editingArticle} onClose={() => setEditingArticle(null)} onSave={handleSave} />
       )}
     </div>
   );
