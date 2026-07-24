@@ -1,4 +1,4 @@
-ame: Deploy WFA Partners
+name: Deploy WFA Partners
 
 on:
   push:
