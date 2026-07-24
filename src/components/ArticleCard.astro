@@ -1,60 +1,51 @@
 ---
-export interface Props {
-  title: string;
-  description: string;
-  image: string;
-  category: string;
-  href: string;
+import type { Article } from '../lib/types';
+import { getArticleImages } from '../lib/types';
+
+interface Props {
+  article: Article;
 }
 
-const { title, description, image, category, href } = Astro.props;
+const { article } = Astro.props;
+const images = getArticleImages(article);
+const primaryImage = images[0] || '';
 ---
 
-<article class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-  <div class="relative h-64 overflow-hidden">
-    <img 
-      src={image} 
-      alt={title}
-      class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-    />
-    <div class="absolute top-4 left-4">
-      <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium capitalize">
-        {category}
+<a
+  href={`/article/${article.id}`}
+  class="group block rounded-2xl overflow-hidden bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10"
+>
+  <div class="relative aspect-[4/3] overflow-hidden bg-gray-700">
+    {primaryImage ? (
+      <img
+        src={primaryImage}
+        alt={article.title}
+        class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+      />
+    ) : (
+      <div class="w-full h-full flex items-center justify-center text-gray-500">
+        <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+    )}
+    {images.length > 1 && (
+      <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
+        {images.length} photos
+      </div>
+    )}
+    <div class="absolute top-3 left-3">
+      <span class="inline-block bg-blue-600 text-white text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full">
+        {article.category}
       </span>
     </div>
   </div>
-  
-  <div class="p-6">
-    <h3 class="text-xl font-semibold text-white mb-3 line-clamp-2">
-      {title}
+  <div class="p-5">
+    <h3 class="text-lg font-semibold text-white mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
+      {article.title}
     </h3>
-    <p class="text-gray-400 mb-4 line-clamp-3">
-      {description}
-    </p>
-    <a 
-      href={href}
-      class="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium transition-colors"
-    >
-      Lire la suite
-      <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-      </svg>
-    </a>
+    {article.description && (
+      <p class="text-gray-400 text-sm line-clamp-2">{article.description}</p>
+    )}
   </div>
-</article>
-
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style>
+</a>

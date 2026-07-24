@@ -6,7 +6,8 @@ const navItems = [
   { name: 'Vision', href: '/vision', current: currentPath === '/vision' },
   { name: 'Architecture', href: '/architecture', current: currentPath === '/architecture' },
   { name: 'Construction', href: '/construction', current: currentPath === '/construction' },
-  { name: 'Contact', href: '/contact', current: currentPath === '/contact' }
+  { name: 'Contact', href: '/contact', current: currentPath === '/contact' },
+  { name: 'Admin', href: '/admin', current: currentPath.startsWith('/admin') }
 ];
 ---
 
@@ -26,14 +27,12 @@ const navItems = [
 <header class="bg-black/90 backdrop-blur-sm fixed w-full top-0 z-50 border-b border-gray-800">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
-      <!-- Logo -->
       <div class="flex-shrink-0">
         <a href="/" class="flex items-center">
           <img src="/logo-r.jpeg" alt="WFA Partners" class="h-12 w-auto" />
         </a>
       </div>
 
-      <!-- Desktop Navigation -->
       <div class="hidden md:block">
         <div class="ml-10 flex items-baseline space-x-8">
           {navItems.map((item) => (
@@ -51,7 +50,6 @@ const navItems = [
         </div>
       </div>
 
-      <!-- Mobile menu button -->
       <div class="md:hidden">
         <button
           data-mobile-menu-button
@@ -64,7 +62,6 @@ const navItems = [
       </div>
     </div>
 
-    <!-- Mobile Navigation -->
     <div data-mobile-menu class="md:hidden hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 bg-black/95">
         {navItems.map((item) => (

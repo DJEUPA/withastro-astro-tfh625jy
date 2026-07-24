@@ -29,7 +29,6 @@ const { title, description = "WFA & Partners - Cabinet d'architecture et de cons
   <body class="bg-gray-900 text-white font-sans">
     <slot />
     <script>
-      // Carousel functionality
       document.addEventListener('DOMContentLoaded', function() {
         const carousel = document.querySelector('[data-carousel]');
         if (carousel) {
@@ -37,13 +36,13 @@ const { title, description = "WFA & Partners - Cabinet d'architecture et de cons
           const indicators = carousel.querySelectorAll('[data-indicator]');
           let currentSlide = 0;
 
-          function showSlide(index) {
-            slides.forEach((slide, i) => {
+          function showSlide(index: number) {
+            slides.forEach((slide: Element, i: number) => {
               slide.classList.toggle('opacity-100', i === index);
               slide.classList.toggle('opacity-0', i !== index);
             });
-            
-            indicators.forEach((indicator, i) => {
+
+            indicators.forEach((indicator: Element, i: number) => {
               indicator.classList.toggle('bg-white', i === index);
               indicator.classList.toggle('bg-white/50', i !== index);
             });
@@ -54,11 +53,9 @@ const { title, description = "WFA & Partners - Cabinet d'architecture et de cons
             showSlide(currentSlide);
           }
 
-          // Auto-advance slides
-          setInterval(nextSlide, 10000);
+          setInterval(nextSlide, 6000);
 
-          // Manual navigation
-          indicators.forEach((indicator, index) => {
+          indicators.forEach((indicator: Element, index: number) => {
             indicator.addEventListener('click', () => {
               currentSlide = index;
               showSlide(currentSlide);
@@ -66,10 +63,9 @@ const { title, description = "WFA & Partners - Cabinet d'architecture et de cons
           });
         }
 
-        // Mobile menu toggle
         const mobileMenuButton = document.querySelector('[data-mobile-menu-button]');
         const mobileMenu = document.querySelector('[data-mobile-menu]');
-        
+
         if (mobileMenuButton && mobileMenu) {
           mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
@@ -84,7 +80,7 @@ const { title, description = "WFA & Partners - Cabinet d'architecture et de cons
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
-  
+
   body {
     margin: 0;
     padding: 0;

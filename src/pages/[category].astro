@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { supabase } from '../lib/supabase';
+import type { Article } from '../lib/types';
+
+const category = Astro.url.pathname.replace('/', '');
+const validCategories = ['architecture', 'construction'];
+
+if (!validCategories.includes(category)) {
+  return Astro.redirect('/404');
+}
+
+const { data: articles } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('published', true)
+  .eq('category', category)
+  .order('created_at', { ascending: false });
+
+const articleList = (articles || []) as Article[];
+const pageTitle = category.charAt(0).toUpperCase() + category.slice(1);
+---
+
+<Layout title={`${pageTitle} - WFA & Partners`} description={`Projets de ${category} par WFA & Partners`}>
+  <Header />
+
+  <section class="pt-24 pb-24 bg-gray-900 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-4xl font-bold text-white mb-8 mt-8">{pageTitle}</h1>
+
+      {articleList.length === 0 ? (
+        <div class="text-center py-20">
+          <p class="text-gray-400 text-lg">Aucun projet publié dans cette catégorie pour le moment.</p>
+        </div>
+      ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {articleList.map((article) => (
+            <ArticleCard article={article} />
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

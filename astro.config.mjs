@@ -1,11 +1,14 @@
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
 import node from '@astrojs/node';
+import react from '@astrojs/react';
 
 export default defineConfig({
-  integrations: [tailwind()],
   output: 'server',
-  adapter: node({
-    mode: 'standalone'
-  })
+  adapter: node({ mode: 'standalone' }),
+  integrations: [react()],
+  vite: {
+    css: {
+      transformer: 'postcss',
+    },
+  },
 });
