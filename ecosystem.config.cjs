@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'wfa-partners',
+      cwd: '/var/www/fwa-partners', 
       script: './dist/server/entry.mjs',
-      cwd: '/home/deploiment/wfa-partners',
       env: {
         NODE_ENV: 'production',
         HOST: '127.0.0.1',
