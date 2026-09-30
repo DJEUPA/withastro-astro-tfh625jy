@@ -30,6 +30,11 @@ const { data: article } = await supabase
 if (!article) {
   return Astro.redirect('/admin/articles');
 }
+
+const existingImages: string[] =
+  Array.isArray(article.images) && article.images.length > 0
+    ? article.images
+    : [article.image_url];
 ---
 
 <Layout title={`Modifier: ${article.title} - WFA & Partners`}>
@@ -53,7 +58,6 @@ if (!article) {
         <div id="formError" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg"></div>
 
         <input type="hidden" id="articleId" value={article.id} />
-        <input type="hidden" id="currentImageUrl" value={article.image_url} />
 
         <div>
           <label for="title" class="block text-sm font-medium text-gray-300 mb-2">Titre *</label>
@@ -103,30 +107,35 @@ if (!article) {
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Image actuelle</label>
-          <img src={article.image_url} alt={article.title} class="w-64 h-40 object-cover rounded-lg border border-gray-700 mb-4" />
+          <label class="block text-sm font-medium text-gray-300 mb-2">Images de l'article (1 à 5)</label>
+          <div id="existingImages" class="grid grid-cols-3 gap-3 mb-4">
+            {existingImages.map((img, i) => (
+              <div class="relative" data-existing-img={img}>
+                <img src={img} alt={`Image ${i + 1}`} class="w-full h-24 object-cover rounded-lg border border-gray-700" />
+                {i === 0 && <span class="absolute top-1 left-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded">Principale</span>}
+                <button type="button" data-remove-existing={img} class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center">x</button>
+              </div>
+            ))}
+          </div>
 
-          <label for="image" class="block text-sm font-medium text-gray-300 mb-2">Changer l'image (optionnel)</label>
-          <div class="flex items-center space-x-4">
-            <input
-              type="file"
-              id="image"
-              name="image"
-              accept="image/*"
-              class="hidden"
-            />
-            <button
-              type="button"
-              id="imageBtn"
-              class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm"
-            >
-              Choisir une nouvelle image
-            </button>
-            <span id="imageFileName" class="text-gray-400 text-sm">Garder l'image actuelle</span>
-          </div>
-          <div id="imagePreview" class="hidden mt-4">
-            <img id="previewImg" class="w-64 h-40 object-cover rounded-lg border border-gray-700" />
-          </div>
+          <input
+            type="file"
+            id="images"
+            name="images"
+            accept="image/*"
+            multiple
+            class="hidden"
+          />
+          <button
+            type="button"
+            id="imageBtn"
+            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm"
+          >
+            Ajouter des images
+          </button>
+          <span id="imageFileName" class="text-gray-400 text-sm ml-4">Aucune nouvelle image</span>
+          <p class="text-gray-500 text-xs mt-2">La première image sera utilisée comme image principale. Maximum 5 images au total.</p>
+          <div id="newImagePreview" class="grid grid-cols-3 gap-3 mt-4 hidden"></div>
         </div>
 
         <div class="flex items-center">
@@ -156,22 +165,58 @@ if (!article) {
     </main>
   </div>
 
-  <script is:inline define:vars={{ supabaseUrl, anonKey: supabaseAnonKey }}>
-    const fileInput = document.getElementById('image');
+  <script is:inline define:vars={{ supabaseUrl, anonKey: supabaseAnonKey, existingImages }}>
+    const MAX_IMAGES = 5;
+    const fileInput = document.getElementById('images');
     const imageBtn = document.getElementById('imageBtn');
     const imageFileName = document.getElementById('imageFileName');
-    const imagePreview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
+    const newImagePreview = document.getElementById('newImagePreview');
+    let currentImages = [...existingImages];
+    let newFiles = [];
 
     imageBtn.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
-      if (file) {
-        imageFileName.textContent = file.name;
-        previewImg.src = URL.createObjectURL(file);
-        imagePreview.classList.remove('hidden');
+      const files = Array.from(fileInput.files);
+      const available = MAX_IMAGES - currentImages.length;
+      newFiles = [...newFiles, ...files].slice(0, available);
+      renderNewPreviews();
+      fileInput.value = '';
+    });
+
+    function renderNewPreviews() {
+      if (newFiles.length === 0) {
+        imageFileName.textContent = 'Aucune nouvelle image';
+        newImagePreview.classList.add('hidden');
+        newImagePreview.innerHTML = '';
+      } else {
+        imageFileName.textContent = newFiles.length + ' nouvelle(s) image(s)';
+        newImagePreview.classList.remove('hidden');
+        newImagePreview.innerHTML = newFiles.map((file, i) => {
+          const url = URL.createObjectURL(file);
+          return '<div class="relative">' +
+            '<img src="' + url + '" class="w-full h-24 object-cover rounded-lg border border-gray-700" />' +
+            '<button type="button" data-remove-new="' + i + '" class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center">x</button>' +
+            '</div>';
+        }).join('');
+
+        newImagePreview.querySelectorAll('[data-remove-new]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.removeNew);
+            newFiles.splice(idx, 1);
+            renderNewPreviews();
+          });
+        });
       }
+    }
+
+    document.querySelectorAll('[data-remove-existing]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const url = btn.dataset.removeExisting;
+        currentImages = currentImages.filter(img => img !== url);
+        const container = btn.closest('[data-existing-img]');
+        container.remove();
+      });
     });
 
     document.getElementById('articleForm').addEventListener('submit', async (e) => {
@@ -179,6 +224,13 @@ if (!article) {
       const submitBtn = document.getElementById('submitBtn');
       const formError = document.getElementById('formError');
       formError.classList.add('hidden');
+
+      const totalAfter = currentImages.length + newFiles.length;
+      if (totalAfter === 0) {
+        formError.classList.remove('hidden');
+        formError.textContent = 'L\'article doit avoir au moins une image';
+        return;
+      }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Enregistrement...';
@@ -190,15 +242,13 @@ if (!article) {
           ?.split('=')[1];
 
         const articleId = document.getElementById('articleId').value;
-        let imageUrl = document.getElementById('currentImageUrl').value;
+        const newUrls = [];
 
-        const file = fileInput.files[0];
-        if (file) {
+        for (const file of newFiles) {
           const fileExt = file.name.split('.').pop();
-          const fileName = `${Date.now()}.${fileExt}`;
-          const filePath = fileName;
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-          const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/article-images/${filePath}`, {
+          const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/article-images/${fileName}`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -208,18 +258,21 @@ if (!article) {
           });
 
           if (!uploadRes.ok) {
-            throw new Error('Erreur lors de l\'upload de l\'image');
+            throw new Error('Erreur lors de l\'upload d\'une image');
           }
 
-          imageUrl = `${supabaseUrl}/storage/v1/object/public/article-images/${filePath}`;
+          newUrls.push(`${supabaseUrl}/storage/v1/object/public/article-images/${fileName}`);
         }
+
+        const allImages = [...currentImages, ...newUrls];
 
         const articleData = {
           title: document.getElementById('title').value,
           description: document.getElementById('description').value,
           content: document.getElementById('content').value,
           category: document.getElementById('category').value,
-          image_url: imageUrl,
+          image_url: allImages[0],
+          images: allImages,
           published: document.getElementById('published').checked,
         };
 

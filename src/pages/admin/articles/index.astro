@@ -72,7 +72,7 @@ const { data: articles = [] } = await supabase
               {articles.map((article) => (
                 <tr class="border-b border-gray-800 hover:bg-gray-800/50">
                   <td class="px-4 py-3">
-                    <img src={article.image_url} alt={article.title} class="w-16 h-12 object-cover rounded" />
+                    <img src={Array.isArray(article.images) && article.images.length > 0 ? article.images[0] : article.image_url} alt={article.title} class="w-16 h-12 object-cover rounded" />
                   </td>
                   <td class="px-4 py-3 text-white text-sm max-w-xs truncate">{article.title}</td>
                   <td class="px-4 py-3">

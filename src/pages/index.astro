@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 
 const { data: latestArchitecture } = await supabase
   .from('articles')
-  .select('id, title, description, image_url, category')
+  .select('id, title, description, image_url, images, category')
   .eq('category', 'architecture')
   .eq('published', true)
   .order('created_at', { ascending: false })
@@ -16,7 +16,7 @@ const { data: latestArchitecture } = await supabase
 
 const { data: latestConstruction } = await supabase
   .from('articles')
-  .select('id, title, description, image_url, category')
+  .select('id, title, description, image_url, images, category')
   .eq('category', 'construction')
   .eq('published', true)
   .order('created_at', { ascending: false })
@@ -52,7 +52,7 @@ const { data: latestConstruction } = await supabase
               <ArticleCard
                 title={latestArchitecture[0].title}
                 description={latestArchitecture[0].description}
-                image={latestArchitecture[0].image_url}
+                image={Array.isArray(latestArchitecture[0].images) && latestArchitecture[0].images.length > 0 ? latestArchitecture[0].images[0] : latestArchitecture[0].image_url}
                 category={latestArchitecture[0].category}
                 href={`/architecture/${latestArchitecture[0].id}`}
               />
@@ -68,7 +68,7 @@ const { data: latestConstruction } = await supabase
               <ArticleCard
                 title={latestConstruction[0].title}
                 description={latestConstruction[0].description}
-                image={latestConstruction[0].image_url}
+                image={Array.isArray(latestConstruction[0].images) && latestConstruction[0].images.length > 0 ? latestConstruction[0].images[0] : latestConstruction[0].image_url}
                 category={latestConstruction[0].category}
                 href={`/construction/${latestConstruction[0].id}`}
               />

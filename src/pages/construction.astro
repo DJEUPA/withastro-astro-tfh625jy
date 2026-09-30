@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 
 const { data: constructionArticles = [] } = await supabase
   .from('articles')
-  .select('id, title, description, image_url, category')
+  .select('id, title, description, image_url, images, category')
   .eq('category', 'construction')
   .eq('published', true)
   .order('created_at', { ascending: false });
@@ -56,7 +56,7 @@ const { data: constructionArticles = [] } = await supabase
               <ArticleCard
                 title={article.title}
                 description={article.description}
-                image={article.image_url}
+                image={Array.isArray(article.images) && article.images.length > 0 ? article.images[0] : article.image_url}
                 category={article.category}
                 href={`/construction/${article.id}`}
               />

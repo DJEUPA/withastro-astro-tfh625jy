@@ -82,28 +82,25 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
         </div>
 
         <div>
-          <label for="image" class="block text-sm font-medium text-gray-300 mb-2">Image de l'article *</label>
-          <div class="flex items-center space-x-4">
-            <input
-              type="file"
-              id="image"
-              name="image"
-              accept="image/*"
-              required
-              class="hidden"
-            />
-            <button
-              type="button"
-              id="imageBtn"
-              class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm"
-            >
-              Choisir une image
-            </button>
-            <span id="imageFileName" class="text-gray-400 text-sm">Aucune image sélectionnée</span>
-          </div>
-          <div id="imagePreview" class="hidden mt-4">
-            <img id="previewImg" class="w-64 h-40 object-cover rounded-lg border border-gray-700" />
-          </div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Images de l'article (1 à 5) *</label>
+          <input
+            type="file"
+            id="images"
+            name="images"
+            accept="image/*"
+            multiple
+            class="hidden"
+          />
+          <button
+            type="button"
+            id="imageBtn"
+            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm"
+          >
+            Choisir des images
+          </button>
+          <span id="imageFileName" class="text-gray-400 text-sm ml-4">Aucune image sélectionnée</span>
+          <p class="text-gray-500 text-xs mt-2">La première image sera utilisée comme image principale. Vous pouvez sélectionner jusqu'à 5 images.</p>
+          <div id="imagePreview" class="grid grid-cols-3 gap-3 mt-4 hidden"></div>
         </div>
 
         <div class="flex items-center">
@@ -133,22 +130,49 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   </div>
 
   <script is:inline define:vars={{ supabaseUrl, anonKey }}>
-    const fileInput = document.getElementById('image');
+    const MAX_IMAGES = 5;
+    const fileInput = document.getElementById('images');
     const imageBtn = document.getElementById('imageBtn');
     const imageFileName = document.getElementById('imageFileName');
     const imagePreview = document.getElementById('imagePreview');
-    const previewImg = document.getElementById('previewImg');
+    let selectedFiles = [];
 
     imageBtn.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
-      if (file) {
-        imageFileName.textContent = file.name;
-        previewImg.src = URL.createObjectURL(file);
-        imagePreview.classList.remove('hidden');
-      }
+      const newFiles = Array.from(fileInput.files);
+      selectedFiles = [...selectedFiles, ...newFiles].slice(0, MAX_IMAGES);
+      renderPreviews();
     });
+
+    function renderPreviews() {
+      if (selectedFiles.length === 0) {
+        imageFileName.textContent = 'Aucune image sélectionnée';
+        imagePreview.classList.add('hidden');
+        imagePreview.innerHTML = '';
+      } else {
+        imageFileName.textContent = selectedFiles.length + ' image(s) sélectionnée(s)';
+        imagePreview.classList.remove('hidden');
+        imagePreview.innerHTML = selectedFiles.map((file, i) => {
+          const url = URL.createObjectURL(file);
+          const isFirst = i === 0;
+          return '<div class="relative">' +
+            '<img src="' + url + '" class="w-full h-24 object-cover rounded-lg border ' + (isFirst ? 'border-blue-500' : 'border-gray-700') + '" />' +
+            (isFirst ? '<span class="absolute top-1 left-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded">Principale</span>' : '') +
+            '<button type="button" data-remove="' + i + '" class="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center">x</button>' +
+            '</div>';
+        }).join('');
+
+        imagePreview.querySelectorAll('[data-remove]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.remove);
+            selectedFiles.splice(idx, 1);
+            renderPreviews();
+          });
+        });
+      }
+      fileInput.value = '';
+    }
 
     document.getElementById('articleForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -156,10 +180,9 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       const formError = document.getElementById('formError');
       formError.classList.add('hidden');
 
-      const file = fileInput.files[0];
-      if (!file) {
+      if (selectedFiles.length === 0) {
         formError.classList.remove('hidden');
-        formError.textContent = 'Veuillez sélectionner une image';
+        formError.textContent = 'Veuillez sélectionner au moins une image';
         return;
       }
 
@@ -172,31 +195,34 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
           .find(c => c.startsWith('sb_access_token='))
           ?.split('=')[1];
 
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = fileName;
+        const imageUrls = [];
+        for (const file of selectedFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-        const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/article-images/${filePath}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': file.type,
-          },
-          body: file,
-        });
+          const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/article-images/${fileName}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': file.type,
+            },
+            body: file,
+          });
 
-        if (!uploadRes.ok) {
-          throw new Error('Erreur lors de l\'upload de l\'image');
+          if (!uploadRes.ok) {
+            throw new Error('Erreur lors de l\'upload d\'une image');
+          }
+
+          imageUrls.push(`${supabaseUrl}/storage/v1/object/public/article-images/${fileName}`);
         }
-
-        const imageUrl = `${supabaseUrl}/storage/v1/object/public/article-images/${filePath}`;
 
         const articleData = {
           title: document.getElementById('title').value,
           description: document.getElementById('description').value,
           content: document.getElementById('content').value,
           category: document.getElementById('category').value,
-          image_url: imageUrl,
+          image_url: imageUrls[0],
+          images: imageUrls,
           published: document.getElementById('published').checked,
         };
 
@@ -222,7 +248,7 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
         formError.textContent = error.message || 'Erreur lors de la création de l\'article';
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Créer l\'article';
+        submitBtn.textContent = 'Créer l'article';
       }
     });
   </script>
